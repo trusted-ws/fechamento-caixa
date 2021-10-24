@@ -1,227 +1,305 @@
+var BASE64_MARKER = ';base64,';
 
-$(function() {
+function convertDataURIToBinary(dataURI) {
+    var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+    var base64 = dataURI.substring(base64Index);
+    var raw = window.atob(base64);
+    var rawLength = raw.length;
+    var array = new Uint8Array(new ArrayBuffer(rawLength));
+  
+    for(i = 0; i < rawLength; i++) {
+      array[i] = raw.charCodeAt(i);
+    }
+    return array;
+}
 
-    $('#teste').on('click', function() {
-
-        var exit = false;
-        /* Checking Length */
-        $('input[id^=description-]').each(function(index, element) {
-            if(exit) {
-                return 0;
-            }
-    
-            if($(this).val().length === 0) {
-                toastr.error('Verifique se todos os campos estão preenchidos e tente novamente.', 'Não foi possível');
-                exit = true;
-            } 
-        });
-        $('input[id^=value-]').each(function(index, element) {
-            if(exit) {
-                return 0;
-            }
-    
-            if($(this).val().length === 0) {
-                toastr.error('Verifique se todos os campos estão preenchidos e tente novamente.', 'Não foi possível');
-                exit = true;
-            } 
-        });
-
+function generatePdf(download) {
+    var exit = false;
+    /* Checking Length */
+    $('input[id^=description-]').each(function(index, element) {
         if(exit) {
             return 0;
         }
 
-        var lista_soma = 0;
-        var lista = new Array();
-        var lista_len = 0;
-        $('input[id^=description-lista]').each(function(index, element) {
-            var desc = $(this).val();
-            var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
-            var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
-            var value = $('#value-lista' + id).val();
-            
-            lista_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
-            lista[desc] = value;
-            lista_len++;
-        });
- 
-        var fundo_soma = 0;
-        var fundo = new Array();
-        var fundo_len = 0;
-        $('input[id^=description-fundo]').each(function(index, element) {
-            var desc = $(this).val();
-            var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
-            var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
-            var value = $('#value-fundo' + id).val();
-            
-            fundo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
-            fundo[desc] = value;
-            fundo_len++;
-        });
+        if($(this).val().length === 0) {
+            toastr.error('Verifique se todos os campos estão preenchidos e tente novamente.', 'Não foi possível');
+            exit = true;
+        } 
+    });
+    $('input[id^=value-]').each(function(index, element) {
+        if(exit) {
+            return 0;
+        }
 
-        var negativo_soma = 0;
-        var negativo = new Array();
-        var negativo_len = 0;
-        $('input[id^=description-negativo]').each(function(index, element) {
-            var desc = $(this).val();
-            var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
-            var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
-            var value = $('#value-negativo' + id).val();
-            
-            negativo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
-            negativo[desc] = value;
-            negativo_len++;
-        });
+        if($(this).val().length === 0) {
+            toastr.error('Verifique se todos os campos estão preenchidos e tente novamente.', 'Não foi possível');
+            exit = true;
+        } 
+    });
 
-        var adicionais_soma = 0;
-        var adicionais = new Array();
-        var adicionais_len = 0;
-        $('input[id^=description-adicionais]').each(function(index, element) {
-            var desc = $(this).val();
-            var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
-            var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
-            var value = $('#value-adicionais' + id).val();
-            
-            adicionais_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
-            adicionais[desc] = value;
-            adicionais_len++;
-        });
+    if(exit) {
+        return 0;
+    }
+
+    var lista_soma = 0;
+    var lista = new Array();
+    var lista_len = 0;
+    $('input[id^=description-lista]').each(function(index, element) {
+        var desc = $(this).val();
+        var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+        var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+        var value = $('#value-lista' + id).val();
         
-        var resultado = (lista_soma + fundo_soma + adicionais_soma) - negativo_soma;
+        lista_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        lista[desc] = value;
+        lista_len++;
+    });
 
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear();
-        today = dd + '/' + mm + '/' + yyyy + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-
-        /* Creating Document */
-        var doc = new jsPDF();
-        doc.setFont("helvetica");
-        doc.setFontType("bold");
-        doc.setFontSize(18);
-        doc.text("Relatório de Recolhe", 10, 15);
-        doc.setFontSize(9);
-        doc.text(today, 150, 15)
-        doc.text('Gerador de Recolhe Automatizado', 10, 18.5);
-
-        /* Lista de Valores */
-        var y = 30;
-        var x = 15;
-
-        doc.setFontSize(12);
-        doc.text("Lista", x, y);
-        doc.setFontSize(9);
-        y += 8;
-        if(lista_len === 0) {
-            doc.setFontStyle('italic');
-            doc.text('Nenhum', x, y-3)
-            doc.setFontType("bold");
-        } else {
-            for (const [key, value] of Object.entries(lista)) {
-                doc.setFontType("normal");
-                doc.text(key, x, y);
-                doc.setFontType("bold");
-                doc.text("R$ " + value, x+50, y);
-                y+=4;
-                // x += 15;
-            }
-        }
-        doc.text('----------------------------------------------------------------', x, y);
-        doc.text('R$ ' + lista_soma.toFixed(2), x+50, y+4);
-
-        /* Fundo de Caixa */
-
-        y = 30;
-        x = 120;
-
-        doc.setFontSize(12);
-        doc.text("Fundo de Caixa", x, y);
-        doc.setFontSize(9);
-        y+=8;
-        if(fundo_len === 0) {
-            doc.setFontStyle('italic');
-            doc.text('Nenhum', x, y-3)
-            doc.setFontType("bold");
-        } else {
-            for (const [key, value] of Object.entries(fundo)) {
-                doc.setFontType("normal");
-                doc.text(key, x, y);
-                doc.setFontType("bold");
-                doc.text("R$ " + value, x+50, y);
-                y+=4;
-                // x += 15;
-            }
-        }
-        doc.text('----------------------------------------------------------------', x, y);
-        y += 4;
-        doc.text('R$ ' + fundo_soma.toFixed(2), x+50, y);
-
-        y += 10;
-        doc.setFontSize(12);
-        doc.text("Negativos", x, y);
-        doc.setFontSize(9);
-        y+=8;
-        if(negativo_len === 0) {
-            doc.setFontStyle('italic');
-            doc.text('Nenhum', x, y-3)
-            doc.setFontType("bold");
-            console.log('LEN: ' + negativo.length);
-        } else {
-            for (const [key, value] of Object.entries(negativo)) {
-                doc.setFontType("normal");
-                doc.text(key, x, y);
-                doc.setFontType("bold");
-                doc.text("R$ " + value, x+50, y);
-                y+=4;
-                // x += 15;
-            }
-        }
-        doc.text('----------------------------------------------------------------', x, y);
-        y += 4;
-        doc.text('R$ ' + negativo_soma.toFixed(2), x+50, y);
-
-        y += 10;
-        doc.setFontSize(12);
-        doc.text("Adicionais", x, y);
-        doc.setFontSize(9);
-        y+=8;
-        if(adicionais_len === 0) {
-            doc.setFontStyle('italic');
-            doc.text('Nenhum', x, y-3)
-            doc.setFontType("bold");
-        } else {
-            for (const [key, value] of Object.entries(adicionais)) {
-                doc.setFontType("normal");
-                doc.text(key, x, y);
-                doc.setFontType("bold");
-                doc.text("R$ " + value, x+50, y);
-                y+=4;
-                // x += 15;
-            }
-        }
-        doc.text('----------------------------------------------------------------', x, y);
-        y += 4;
-        doc.text('R$ ' + adicionais_soma.toFixed(2), x+50, y);
-
-
-        // doc.text("This is client-side Javascript, pumping out a PDF.", 20, 30);
-        doc.setFontStyle('bold');
+    var fundo_soma = 0;
+    var fundo = new Array();
+    var fundo_len = 0;
+    $('input[id^=description-fundo]').each(function(index, element) {
+        var desc = $(this).val();
+        var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+        var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+        var value = $('#value-fundo' + id).val();
         
-        doc.setFontSize(8);
-        doc.text('VALOR FINAL: ', x, y+19);
-        doc.setFontSize(18);
-        if(resultado < 0) {
-            doc.setTextColor(219, 68, 42);
-        }
-        doc.text('R$ ' + resultado.toFixed(2), x+3, y+25);
-        doc.setTextColor(0, 0, 0);
+        fundo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        fundo[desc] = value;
+        fundo_len++;
+    });
 
+    var negativo_soma = 0;
+    var negativo = new Array();
+    var negativo_len = 0;
+    $('input[id^=description-negativo]').each(function(index, element) {
+        var desc = $(this).val();
+        var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+        var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+        var value = $('#value-negativo' + id).val();
+        
+        negativo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        negativo[desc] = value;
+        negativo_len++;
+    });
 
-        doc.output('dataurlnewwindow');      
-
-
+    var adicionais_soma = 0;
+    var adicionais = new Array();
+    var adicionais_len = 0;
+    $('input[id^=description-adicionais]').each(function(index, element) {
+        var desc = $(this).val();
+        var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+        var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+        var value = $('#value-adicionais' + id).val();
+        
+        adicionais_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        adicionais[desc] = value;
+        adicionais_len++;
     });
     
+    var resultado = (lista_soma + fundo_soma + adicionais_soma) - negativo_soma;
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    today = dd + '/' + mm + '/' + yyyy + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+    /* Creating Document */
+    var doc = new jsPDF();
+    doc.setFont("helvetica");
+    doc.setFontType("bold");
+    doc.setFontSize(18);
+    doc.text("Relatório de Recolhe", 10, 15);
+    doc.setFontSize(9);
+    doc.text(today, 150, 15)
+    doc.text('Gerador de Recolhe Automatizado', 10, 18.5);
+
+    /* Lista de Valores */
+    var y = 30;
+    var x = 15;
+
+    doc.setFontSize(12);
+    doc.text("Lista", x, y);
+    doc.setFontSize(9);
+    y += 8;
+    if(lista_len === 0) {
+        doc.setFontStyle('italic');
+        doc.text('Nenhum', x, y-3)
+        doc.setFontType("bold");
+    } else {
+        for (const [key, value] of Object.entries(lista)) {
+            doc.setFontType("normal");
+            doc.text(key, x, y);
+            doc.setFontType("bold");
+            doc.text("R$ " + value, x+50, y);
+            y+=4;
+            // x += 15;
+        }
+    }
+    doc.text('----------------------------------------------------------------', x, y);
+    doc.text('R$ ' + lista_soma.toFixed(2), x+50, y+4);
+
+    /* Fundo de Caixa */
+
+    y = 30;
+    x = 120;
+
+    doc.setFontSize(12);
+    doc.text("Fundo de Caixa", x, y);
+    doc.setFontSize(9);
+    y+=8;
+    if(fundo_len === 0) {
+        doc.setFontStyle('italic');
+        doc.text('Nenhum', x, y-3)
+        doc.setFontType("bold");
+    } else {
+        for (const [key, value] of Object.entries(fundo)) {
+            doc.setFontType("normal");
+            doc.text(key, x, y);
+            doc.setFontType("bold");
+            doc.text("R$ " + value, x+50, y);
+            y+=4;
+            // x += 15;
+        }
+    }
+    doc.text('----------------------------------------------------------------', x, y);
+    y += 4;
+    doc.text('R$ ' + fundo_soma.toFixed(2), x+50, y);
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text("Negativos", x, y);
+    doc.setFontSize(9);
+    y+=8;
+    if(negativo_len === 0) {
+        doc.setFontStyle('italic');
+        doc.text('Nenhum', x, y-3)
+        doc.setFontType("bold");
+        console.log('LEN: ' + negativo.length);
+    } else {
+        for (const [key, value] of Object.entries(negativo)) {
+            doc.setFontType("normal");
+            doc.text(key, x, y);
+            doc.setFontType("bold");
+            doc.text("R$ " + value, x+50, y);
+            y+=4;
+            // x += 15;
+        }
+    }
+    doc.text('----------------------------------------------------------------', x, y);
+    y += 4;
+    doc.text('R$ ' + negativo_soma.toFixed(2), x+50, y);
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text("Adicionais", x, y);
+    doc.setFontSize(9);
+    y+=8;
+    if(adicionais_len === 0) {
+        doc.setFontStyle('italic');
+        doc.text('Nenhum', x, y-3)
+        doc.setFontType("bold");
+    } else {
+        for (const [key, value] of Object.entries(adicionais)) {
+            doc.setFontType("normal");
+            doc.text(key, x, y);
+            doc.setFontType("bold");
+            doc.text("R$ " + value, x+50, y);
+            y+=4;
+            // x += 15;
+        }
+    }
+    doc.text('----------------------------------------------------------------', x, y);
+    y += 4;
+    doc.text('R$ ' + adicionais_soma.toFixed(2), x+50, y);
+
+
+    // doc.text("This is client-side Javascript, pumping out a PDF.", 20, 30);
+    doc.setFontStyle('bold');
+    
+    doc.setFontSize(8);
+    doc.text('VALOR FINAL: ', x, y+19);
+    doc.setFontSize(18);
+    if(resultado < 0) {
+        doc.setTextColor(219, 68, 42);
+    }
+    doc.text('R$ ' + resultado.toFixed(2), x+3, y+25);
+    doc.setTextColor(0, 0, 0);
+
+
+    if(download === true) {
+        doc.output('dataurlnewwindow');
+    } else {
+        var pdf_uri = doc.output('datauristring');     
+        var pdf_array = convertDataURIToBinary(pdf_uri);
+        var thePDF = null;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.11.338/build/pdf.worker.min.js";
+        
+        var loadingTask = pdfjsLib.getDocument(pdf_array);
+        loadingTask.promise.then(function(pdf) {
+            console.log('PDF Loaded!');
+            var pageNumber = 1;
+            pdf.getPage(pageNumber).then(function(page) {
+                console.log('Page ' + pageNumber + ' lodaded!');
+                var scale = 1.5;
+                var viewport = page.getViewport({scale: scale});
+                var canvas = document.getElementById('pdf-canvas');
+                var context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+    
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+    
+                var renderTask = page.render(renderContext);
+                renderTask.promise.then(function() {
+                    console.log('Page rendered!');
+                });
+            });
+        }, function(reason) {
+            console.error(reason);
+        });
+    }
+    
+}
+
+function handlePages(page)
+{
+    //This gives us the page's dimensions at full scale
+    var viewport = page.getViewport( 1 );
+
+    //We'll create a canvas for each page to draw it on
+    var canvas = document.createElement( "canvas" );
+    canvas.style.display = "block";
+    var context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    //Draw it on the canvas
+    page.render({canvasContext: context, viewport: viewport});
+
+    //Add it to the web page
+    document.body.appendChild( canvas );
+
+    //Move to next page
+    currPage++;
+    if ( thePDF !== null && currPage <= numPages )
+    {
+        thePDF.getPage( currPage ).then( handlePages );
+    }
+}
+
+$(function() {
+
+    $('#gerar').on('click', function() {
+        generatePdf(true);
+    });
+    $('#visualizar').on('click', function() {
+        generatePdf(false);
+    })
 
 });
 

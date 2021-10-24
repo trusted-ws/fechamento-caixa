@@ -84,8 +84,15 @@
                                 </div>
                                 <button data-repeater-create type="button" class="btn btn-primary btn-sm m-2" value="">Adicionar Campo</button>
                             </form>
-                    </div><button class="btn btn-primary m-2 p-2" id="teste">Gerar PDF</button>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button class="btn btn-dark m-2 p-2" id="gerar">Baixar PDF</button>
+                        <button class="btn btn-dark m-2 p-2" id="visualizar">Visualizar PDF</button>
+                    </div>
                         </div>
+                </div>
+                <div>
+                    <canvas id="pdf-canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -97,6 +104,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.repeater/1.2.1/jquery.repeater.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
         <script src="js/jquery.mask.min.js"></script>
         <!-- END: Vendors JS -->
 
