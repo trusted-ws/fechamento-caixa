@@ -13,6 +13,20 @@ function convertDataURIToBinary(dataURI) {
     return array;
 }
 
+function formatMoney(number, decPlaces, decSep, thouSep) {
+    decPlaces = isNaN(decPlaces = Math.abs(decPlaces)) ? 2 : decPlaces,
+    decSep = typeof decSep === "undefined" ? "," : decSep;
+    thouSep = typeof thouSep === "undefined" ? "." : thouSep;
+    var sign = number < 0 ? "-" : "";
+    var i = String(parseInt(number = Math.abs(Number(number) || 0).toFixed(decPlaces)));
+    var j = (j = i.length) > 3 ? j % 3 : 0;
+
+    return sign +
+        (j ? i.substr(0, j) + thouSep : "") +
+        i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
+        (decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+}
+
 function generatePdf(download) {
     var exit = false;
     /* Checking Length */
@@ -117,7 +131,9 @@ function generatePdf(download) {
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
-    today = dd + '/' + mm + '/' + yyyy + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    var weekday = days[today.getDay()];
+    today = dd + '/' + mm + '/' + yyyy + " " + String(today.getHours()).padStart(2, '0') + ":" + String(today.getMinutes()).padStart(2, '0') + ":" + String(today.getSeconds()).padStart(2, '0');
 
     /* Creating Document */
     var doc = new jsPDF();
@@ -125,8 +141,13 @@ function generatePdf(download) {
     doc.setFontType("bold");
     doc.setFontSize(18);
     doc.text("Relatório de Recolhe", 10, 15);
-    doc.setFontSize(9);
-    doc.text(today, 150, 15)
+    doc.setFontSize(10);
+    doc.text(today, 150, 15);
+    doc.setFontType("normal");
+    doc.setFontSize(7);
+    doc.text(weekday, 150, 18);
+    doc.setFontType("bold");
+    doc.setFontSize(10);
     doc.text('Gerador de Recolhe Automatizado', 10, 18.5);
 
     /* Lista de Valores */
@@ -135,7 +156,7 @@ function generatePdf(download) {
 
     doc.setFontSize(12);
     doc.text("Lista", x, y);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     y += 8;
     if(lista_len === 0) {
         doc.setFontStyle('italic');
@@ -152,7 +173,7 @@ function generatePdf(download) {
         }
     }
     doc.text('----------------------------------------------------------------', x, y);
-    doc.text('R$ ' + lista_soma.toFixed(2), x+50, y+4);
+    doc.text('R$ ' + formatMoney(lista_soma.toFixed(2)), x+50, y+4);
 
     /* Fundo de Caixa */
 
@@ -161,7 +182,7 @@ function generatePdf(download) {
 
     doc.setFontSize(12);
     doc.text("Fundo de Caixa", x, y);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     y+=8;
     if(fundo_len === 0) {
         doc.setFontStyle('italic');
@@ -179,12 +200,12 @@ function generatePdf(download) {
     }
     doc.text('----------------------------------------------------------------', x, y);
     y += 4;
-    doc.text('R$ ' + fundo_soma.toFixed(2), x+50, y);
+    doc.text('R$ ' + formatMoney(fundo_soma.toFixed(2)), x+50, y);
 
     y += 10;
     doc.setFontSize(12);
     doc.text("Negativos", x, y);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     y+=8;
     if(negativo_len === 0) {
         doc.setFontStyle('italic');
@@ -203,12 +224,12 @@ function generatePdf(download) {
     }
     doc.text('----------------------------------------------------------------', x, y);
     y += 4;
-    doc.text('R$ ' + negativo_soma.toFixed(2), x+50, y);
+    doc.text('R$ ' + formatMoney(negativo_soma.toFixed(2)), x+50, y);
 
     y += 10;
     doc.setFontSize(12);
     doc.text("Adicionais (+)", x, y);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     y+=8;
     if(adicionais_len === 0) {
         doc.setFontStyle('italic');
@@ -226,12 +247,12 @@ function generatePdf(download) {
     }
     doc.text('----------------------------------------------------------------', x, y);
     y += 4;
-    doc.text('R$ ' + adicionais_soma.toFixed(2), x+50, y);
+    doc.text('R$ ' + formatMoney(adicionais_soma.toFixed(2)), x+50, y);
 
     y += 10;
     doc.setFontSize(12);
     doc.text("Adicionais (-)", x, y);
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     y+=8;
     if(adicionais_sub_len === 0) {
         doc.setFontStyle('italic');
@@ -249,7 +270,7 @@ function generatePdf(download) {
     }
     doc.text('----------------------------------------------------------------', x, y);
     y += 4;
-    doc.text('R$ ' + adicionais_sub_soma.toFixed(2), x+50, y);
+    doc.text('R$ ' + formatMoney(adicionais_sub_soma.toFixed(2)), x+50, y);
 
     // doc.text("This is client-side Javascript, pumping out a PDF.", 20, 30);
     doc.setFontStyle('bold');
@@ -260,7 +281,11 @@ function generatePdf(download) {
     if(resultado < 0) {
         doc.setTextColor(219, 68, 42);
     }
-    doc.text('R$ ' + resultado.toFixed(2), x+3, y+25);
+    // doc.text('R$ ' + resultado.toFixed(2), x+3, y+25);
+    doc.setFontSize(12);
+    doc.text('R$', x+3, y+25);
+    doc.setFontSize(18);
+    doc.text(formatMoney(resultado.toFixed(2)), x+9.5, y+25);
     doc.setTextColor(0, 0, 0);
 
 
