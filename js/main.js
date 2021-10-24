@@ -96,8 +96,22 @@ function generatePdf(download) {
         adicionais[desc] = value;
         adicionais_len++;
     });
+
+    var adicionais_sub_soma = 0;
+    var adicionais_sub = new Array();
+    var adicionais_sub_len = 0;
+    $('input[id^=description-sub-adicionais]').each(function(index, element) {
+        var desc = $(this).val();
+        var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+        var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+        var value = $('#value-sub-adicionais' + id).val();
+        
+        adicionais_sub_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        adicionais_sub[desc] = value;
+        adicionais_sub_len++;
+    });
     
-    var resultado = (lista_soma + fundo_soma + adicionais_soma) - negativo_soma;
+    var resultado = (lista_soma + fundo_soma + adicionais_soma) - (negativo_soma + adicionais_sub_soma);
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -193,7 +207,7 @@ function generatePdf(download) {
 
     y += 10;
     doc.setFontSize(12);
-    doc.text("Adicionais", x, y);
+    doc.text("Adicionais (+)", x, y);
     doc.setFontSize(9);
     y+=8;
     if(adicionais_len === 0) {
@@ -214,6 +228,28 @@ function generatePdf(download) {
     y += 4;
     doc.text('R$ ' + adicionais_soma.toFixed(2), x+50, y);
 
+    y += 10;
+    doc.setFontSize(12);
+    doc.text("Adicionais (-)", x, y);
+    doc.setFontSize(9);
+    y+=8;
+    if(adicionais_sub_len === 0) {
+        doc.setFontStyle('italic');
+        doc.text('Nenhum', x, y-3)
+        doc.setFontType("bold");
+    } else {
+        for (const [key, value] of Object.entries(adicionais_sub)) {
+            doc.setFontType("normal");
+            doc.text(key, x, y);
+            doc.setFontType("bold");
+            doc.text("R$ " + value, x+50, y);
+            y+=4;
+            // x += 15;
+        }
+    }
+    doc.text('----------------------------------------------------------------', x, y);
+    y += 4;
+    doc.text('R$ ' + adicionais_sub_soma.toFixed(2), x+50, y);
 
     // doc.text("This is client-side Javascript, pumping out a PDF.", 20, 30);
     doc.setFontStyle('bold');
@@ -395,6 +431,28 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-adicionais'+counter4);
             input_value.attr('id', 'value-adicionais'+counter4);
+
+        },
+        hide: function (deleteElement) {
+            if(confirm('Você tem certeza disso?')) {
+                $(this).slideUp(deleteElement);
+            }
+        },
+    })
+
+    var counter5 = 0;
+    $('form.repeater-sub-adicionais').repeater({
+        initEmpty: true,
+        show: function () {
+           var $this = $(this);
+           $this.slideDown();
+            
+            counter5++;
+            var input_description = $this.find('#description');
+            var input_value = $this.find('#value');
+
+            input_description.attr('id', 'description-sub-adicionais'+counter5);
+            input_value.attr('id', 'value-sub-adicionais'+counter5);
 
         },
         hide: function (deleteElement) {

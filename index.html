@@ -72,7 +72,22 @@
                             <br>
                             <form class="repeater-adicionais">
                                 <div data-repeater-list="group-a">
-                                <h4>Adicionais</h4>
+                                <h4>Adicionais <small>(+)</small></h4>
+                                <span class="m-1 p-1">Descrição / Valor (R$)</span>
+                                <div data-repeater-item>
+                                    <div class="input-group m-1 p-1">
+                                        <input type="text" aria-label="Descrição" class="form-control" id="description">
+                                        <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric">
+                                        <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
+                                    </div>
+                                </div>
+                                </div>
+                                <button data-repeater-create type="button" class="btn btn-primary btn-sm m-2" value="">Adicionar Campo</button>
+                            </form>
+                            <br>
+                            <form class="repeater-sub-adicionais">
+                                <div data-repeater-list="group-a">
+                                <h4>Adicionais <small>(-)</small></h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
                                     <div class="input-group m-1 p-1">
