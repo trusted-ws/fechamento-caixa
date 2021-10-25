@@ -1,4 +1,5 @@
 var BASE64_MARKER = ';base64,';
+var qtdCampos = 0;
 
 function convertDataURIToBinary(dataURI) {
     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
@@ -353,8 +354,17 @@ function handlePages(page)
     }
 }
 
-$(function() {
 
+$(function() {
+    
+    window.onbeforeunload = function (e)
+    {
+        if(qtdCampos > 0) {
+            window.location.reload(true);
+            return "";
+        }
+    };
+    
     $('#gerar').on('click', function() {
         generatePdf(true);
     });
@@ -386,16 +396,34 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-lista'+counter1);
             input_value.attr('id', 'value-lista'+counter1);
-
+            qtdCampos++;
            
             // var data = $('form.repeater').repeaterVal();
             // console.debug(data);
 
         },
         hide: function (deleteElement) {
-            if(confirm('Você tem certeza disso?')) {
-                $(this).slideUp(deleteElement);
-            }
+            var $this = $(this);
+            $.confirm({
+                title: 'Você tem certeza?',
+                content: 'Realmente deseja remover este campo?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    removeMe: {
+                        text: 'Remover',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $this.slideUp(deleteElement);
+                            qtdCampos--;
+                        }
+                    },
+                    close: {
+                        text: 'Cancelar'
+                    }
+                }
+            });
+
         },
     })
 
@@ -412,12 +440,30 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-fundo'+counter2);
             input_value.attr('id', 'value-fundo'+counter2);
+            qtdCampos++;
 
         },
         hide: function (deleteElement) {
-            if(confirm('Você tem certeza disso?')) {
-                $(this).slideUp(deleteElement);
-            }
+            var $this = $(this);
+            $.confirm({
+                title: 'Você tem certeza?',
+                content: 'Realmente deseja remover este campo?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    removeMe: {
+                        text: 'Remover',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $this.slideUp(deleteElement);
+                            qtdCampos--;
+                        }
+                    },
+                    close: {
+                        text: 'Cancelar'
+                    }
+                }
+            });
         },
     })
 
@@ -434,12 +480,30 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-negativo'+counter3);
             input_value.attr('id', 'value-negativo'+counter3);
+            qtdCampos++;
 
         },
         hide: function (deleteElement) {
-            if(confirm('Você tem certeza disso?')) {
-                $(this).slideUp(deleteElement);
-            }
+            var $this = $(this);
+            $.confirm({
+                title: 'Você tem certeza?',
+                content: 'Realmente deseja remover este campo?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    removeMe: {
+                        text: 'Remover',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $this.slideUp(deleteElement);
+                            qtdCampos--;
+                        }
+                    },
+                    close: {
+                        text: 'Cancelar'
+                    }
+                }
+            });
         },
     })
 
@@ -456,12 +520,28 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-adicionais'+counter4);
             input_value.attr('id', 'value-adicionais'+counter4);
+            qtdCampos++;
 
         },
         hide: function (deleteElement) {
-            if(confirm('Você tem certeza disso?')) {
-                $(this).slideUp(deleteElement);
-            }
+            $.confirm({
+                title: 'Você tem certeza?',
+                content: 'Realmente deseja remover este campo?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    removeMe: {
+                        text: 'Remover',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $(this).slideUp(deleteElement);
+                            qtdCampos--;
+                        }
+                    },
+                    close: function () {
+                    }
+                }
+            });
         },
     })
 
@@ -478,12 +558,30 @@ $(document).ready(function () {
 
             input_description.attr('id', 'description-sub-adicionais'+counter5);
             input_value.attr('id', 'value-sub-adicionais'+counter5);
+            qtdCampos++;
 
         },
         hide: function (deleteElement) {
-            if(confirm('Você tem certeza disso?')) {
-                $(this).slideUp(deleteElement);
-            }
+            var $this = $(this);
+            $.confirm({
+                title: 'Você tem certeza?',
+                content: 'Realmente deseja remover este campo?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    removeMe: {
+                        text: 'Remover',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $this.slideUp(deleteElement);
+                            qtdCampos--;
+                        }
+                    },
+                    close: {
+                        text: 'Cancelar'
+                    }
+                }
+            });
         },
     })
 
