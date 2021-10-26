@@ -448,7 +448,7 @@ $(function() {
             content: '' +
             '<form action="" class="formName">' +
             '<div class="form-group">' +
-            '<label>Mudar para outro nome: </label>' +
+            '<label class="noselect">Mudar para outro nome: </label>' +
             '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
             '</div>' +
             '</form>',
