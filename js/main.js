@@ -418,7 +418,7 @@ $(function() {
         });
     });
 
-    $('#autor').on('press', function(e) {
+    $('#autor').on('click', function(e) {
         $.confirm({
             title: 'Remover autoria de relatório?',
             content: 'Realmente deseja remover a autoria desse relatório?',
