@@ -31,7 +31,7 @@
                                 <h4>Lista de Valores</h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
-                                    <div class="input-group m-1 p-1">
+                                    <div class="input-group m-1 p-1" style="display:none;" id="ig1">
                                         <input type="text" aria-label="Descrição" class="form-control" id="description" required>
                                         <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric" required>
                                         <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
@@ -46,7 +46,7 @@
                                 <h4>Fundo de Caixa</h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
-                                    <div class="input-group m-1 p-1">
+                                    <div class="input-group m-1 p-1" style="display:none;" id="ig2">
                                         <input type="text" aria-label="Descrição" class="form-control" id="description">
                                         <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric">
                                         <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
@@ -61,7 +61,7 @@
                                 <h4>Negativo</h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
-                                    <div class="input-group m-1 p-1">
+                                    <div class="input-group m-1 p-1" style="display:none;" id="ig3">
                                         <input type="text" aria-label="Descrição" class="form-control" id="description">
                                         <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric">
                                         <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
@@ -76,7 +76,7 @@
                                 <h4>Adicionais <small>(+)</small></h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
-                                    <div class="input-group m-1 p-1">
+                                    <div class="input-group m-1 p-1" style="display:none;" id="ig4">
                                         <input type="text" aria-label="Descrição" class="form-control" id="description">
                                         <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric">
                                         <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
@@ -91,7 +91,7 @@
                                 <h4>Adicionais <small>(-)</small></h4>
                                 <span class="m-1 p-1">Descrição / Valor (R$)</span>
                                 <div data-repeater-item>
-                                    <div class="input-group m-1 p-1">
+                                    <div class="input-group m-1 p-1" style="display:none;" id="ig5">
                                         <input type="text" aria-label="Descrição" class="form-control" id="description">
                                         <input type="text" aria-label="Valor" class="form-control" id="value" inputmode="numeric">
                                         <button data-repeater-delete class="btn btn-sm btn-danger" type="button" value=""><span class="material-icons">clear</span></button>
@@ -100,15 +100,15 @@
                                 </div>
                                 <button data-repeater-create type="button" class="btn btn-primary btn-sm m-2" value="">Adicionar Campo</button>
                             </form>
-                    </div>
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <button class="btn btn-dark m-2 p-2" id="gerar">Baixar PDF</button>
-                        <button class="btn btn-dark m-2 p-2" id="visualizar">Visualizar PDF</button>
-                    </div>
                         </div>
-                </div>
-                <div>
-                    <canvas id="pdf-canvas"></canvas>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button class="btn btn-dark m-2 p-2" id="gerar">Baixar PDF</button>
+                            <button class="btn btn-dark m-2 p-2" id="visualizar">Visualizar PDF</button>
+                        </div>
+                        <div>
+                            <canvas id="pdf-canvas" class="canvas"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

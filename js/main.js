@@ -382,6 +382,14 @@ $(document).ready(function () {
         $(this).mask('000.000.000.000.000,00', {reverse: true});
     });
 
+    /* Show input groups again */
+    $('#ig1').show();
+    $('#ig2').show();
+    $('#ig3').show();
+    $('#ig4').show();
+    $('#ig5').show();
+
+
     /* Main */
     var counter1 = 0;
     $('form.repeater-lista').repeater({
@@ -524,6 +532,7 @@ $(document).ready(function () {
 
         },
         hide: function (deleteElement) {
+            var $this = $(this);
             $.confirm({
                 title: 'Você tem certeza?',
                 content: 'Realmente deseja remover este campo?',
@@ -534,11 +543,12 @@ $(document).ready(function () {
                         text: 'Remover',
                         btnClass: 'btn-red',
                         action: function(){
-                            $(this).slideUp(deleteElement);
+                            $this.slideUp(deleteElement);
                             qtdCampos--;
                         }
                     },
-                    close: function () {
+                    close: {
+                        text: 'Cancelar'
                     }
                 }
             });
