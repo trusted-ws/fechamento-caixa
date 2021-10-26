@@ -1,5 +1,6 @@
 var BASE64_MARKER = ';base64,';
 var qtdCampos = 0;
+var autor = '';
 
 function convertDataURIToBinary(dataURI) {
     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
@@ -136,6 +137,13 @@ function generatePdf(download) {
     var weekday = days[today.getDay()];
     today = dd + '/' + mm + '/' + yyyy + " " + String(today.getHours()).padStart(2, '0') + ":" + String(today.getMinutes()).padStart(2, '0') + ":" + String(today.getSeconds()).padStart(2, '0');
 
+    /* Labels */
+    var lista_de_valores = $('#l-lista-valores').text();
+    var fundo_de_caixa = $('#l-fundo-caixa').text();
+    var negativos = $('#l-negativos').text();
+    var adicionais_sum = $('#l-adicionais-sum').text();
+    var adicionais_subtr = $('#l-adicionais-sub').text();
+
     /* Creating Document */
     var doc = new jsPDF();
     doc.setFont("helvetica");
@@ -148,6 +156,7 @@ function generatePdf(download) {
     doc.setFontSize(7);
     doc.text(weekday, 150, 18);
     doc.setFontType("bold");
+    doc.text(autor, 150, 8);
     doc.setFontSize(10);
     doc.text('Gerador de Recolhe Automatizado', 10, 18.5);
 
@@ -156,7 +165,7 @@ function generatePdf(download) {
     var x = 15;
 
     doc.setFontSize(12);
-    doc.text("Lista", x, y);
+    doc.text(lista_de_valores, x, y);
     doc.setFontSize(10);
     y += 8;
     if(lista_len === 0) {
@@ -182,7 +191,7 @@ function generatePdf(download) {
     x = 120;
 
     doc.setFontSize(12);
-    doc.text("Fundo de Caixa", x, y);
+    doc.text(fundo_de_caixa, x, y);
     doc.setFontSize(10);
     y+=8;
     if(fundo_len === 0) {
@@ -205,7 +214,7 @@ function generatePdf(download) {
 
     y += 10;
     doc.setFontSize(12);
-    doc.text("Negativos", x, y);
+    doc.text(negativos, x, y);
     doc.setFontSize(10);
     y+=8;
     if(negativo_len === 0) {
@@ -229,7 +238,7 @@ function generatePdf(download) {
 
     y += 10;
     doc.setFontSize(12);
-    doc.text("Adicionais (+)", x, y);
+    doc.text(adicionais_sum, x, y);
     doc.setFontSize(10);
     y+=8;
     if(adicionais_len === 0) {
@@ -252,7 +261,7 @@ function generatePdf(download) {
 
     y += 10;
     doc.setFontSize(12);
-    doc.text("Adicionais (-)", x, y);
+    doc.text(adicionais_subtr, x, y);
     doc.setFontSize(10);
     y+=8;
     if(adicionais_sub_len === 0) {
@@ -364,6 +373,274 @@ $(function() {
             return "";
         }
     };
+
+    $('#l-recolhe').on('press', function(e) {
+        var placeholder = 'Nome';
+        if(autor.length > 0) { placeholder = autor; }
+
+        $.confirm({
+            title: 'Autoria do Relatório',
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Seu nome: </label>' +
+            '<input type="text" placeholder="'+placeholder+'" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Definir',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $('#autor').text(name);
+                        $('#l-autor').show();
+                        autor = name;
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
+    $('#autor').on('press', function(e) {
+        $.confirm({
+            title: 'Remover autoria de relatório?',
+            content: 'Realmente deseja remover a autoria desse relatório?',
+            type: 'red',
+            typeAnimated: true,
+            buttons: {
+                removeMe: {
+                    text: 'Remover',
+                    btnClass: 'btn-red',
+                    action: function(){
+                        autor = '';
+                        $('#l-autor').hide();
+                        $('#autor').text('');
+                    }
+                },
+                close: {
+                    text: 'Cancelar'
+                }
+            }
+        });
+    });
+
+    $('#l-lista-valores').on('press', function(e) {
+        var $this = $(this);
+        $.confirm({
+            title: $this.text(),
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Mudar para outro nome: </label>' +
+            '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Alterar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $this.text(name);
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
+    $('#l-fundo-caixa').on('press', function(e) {
+        var $this = $(this);
+        $.confirm({
+            title: $this.text(),
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Mudar para outro nome: </label>' +
+            '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Alterar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $this.text(name);
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
+    $('#l-negativos').on('press', function(e) {
+        var $this = $(this);
+        $.confirm({
+            title: $this.text(),
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Mudar para outro nome: </label>' +
+            '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Alterar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $this.text(name);
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
+    $('#l-adicionais-sum').on('press', function(e) {
+        var $this = $(this);
+        $.confirm({
+            title: $this.text(),
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Mudar para outro nome: </label>' +
+            '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Alterar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $this.text(name);
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
+    $('#l-adicionais-sub').on('press', function(e) {
+        var $this = $(this);
+        $.confirm({
+            title: $this.text(),
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label>Mudar para outro nome: </label>' +
+            '<input type="text" placeholder="Novo nome" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Alterar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        if(!name){
+                            $.alert('Esse nome não é válido!');
+                            return false;
+                        }
+                        $this.text(name);
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    });
+
     
     $('#gerar').on('click', function() {
         generatePdf(true);
