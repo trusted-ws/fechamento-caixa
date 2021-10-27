@@ -299,9 +299,9 @@ function generatePdf(download) {
     doc.setTextColor(0, 0, 0);
 
 
-    if(download === true) {
+    if(download === 1) {
         doc.output('dataurlnewwindow');
-    } else {
+    } else if(download === 0) {
         var pdf_uri = doc.output('datauristring');     
         var pdf_array = convertDataURIToBinary(pdf_uri);
         var thePDF = null;
@@ -333,6 +333,84 @@ function generatePdf(download) {
         }, function(reason) {
             console.error(reason);
         });
+    } else {
+        $.confirm({
+            title: 'Enviar para o Servidor',
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            '<label class="noselect">Senha para Enviar: </label>' +
+            '<input type="password" class="passcode form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                formSubmit: {
+                    text: 'Enviar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var passcode = this.$content.find('.passcode').val();
+                        if(!passcode){
+                            $.alert('Senha inválida!');
+                            return false;
+                        }
+
+                        /* Send to Server */
+                        var blob = doc.output('blob');
+                        var formData = new FormData();
+                        
+                        formData.append('pdf', blob);
+                        formData.append('sn', resultado);
+                        formData.append('passcode', passcode);
+                
+                        $.ajax('upload.php', 
+                        {
+                            method: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(r) {
+                                if(r != 0) {
+                                    $.alert({
+                                        title: 'Falha na Autenticação',
+                                        icon: 'fa fa-warning',
+                                        type: 'orange',
+                                        content: 'Não foi possível enviar o arquivo para o servidor, pois a senha estava incorreta.'
+                                      });
+                                } else {
+                                    $.alert({
+                                        title: 'Enviado!',
+                                        icon: 'fa fa-check',
+                                        type: 'green',
+                                        content: 'O arquivo foi enviado com sucesso para o servidor!'
+                                      });
+                                }
+                            },
+                            error: function(e) {
+                                console.error('Error: ' + e);
+                            }
+                        });
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar'
+                }
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+
+
+
+
+
+
     }
     
 }
@@ -643,10 +721,15 @@ $(function() {
 
     
     $('#gerar').on('click', function() {
-        generatePdf(true);
+        generatePdf(1);
     });
+
+    $('#enviar').on('click', function() {
+        generatePdf(2);
+    });
+
     $('#visualizar').on('click', function() {
-        generatePdf(false);
+        generatePdf(0);
     })
 
 });
