@@ -98,6 +98,20 @@ function generatePdf(download) {
         var value = $('#value-lista' + id).val();
         
         lista_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in lista) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in lista)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         lista[desc] = value;
         lista_len++;
     });
@@ -112,6 +126,20 @@ function generatePdf(download) {
         var value = $('#value-fundo' + id).val();
         
         fundo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+
+        if(desc in fundo) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in fundo)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+
         fundo[desc] = value;
         fundo_len++;
     });
@@ -126,6 +154,20 @@ function generatePdf(download) {
         var value = $('#value-negativo' + id).val();
         
         negativo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in negativo) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in negativo)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         negativo[desc] = value;
         negativo_len++;
     });
@@ -140,6 +182,20 @@ function generatePdf(download) {
         var value = $('#value-adicionais' + id).val();
         
         adicionais_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in adicionais) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in adicionais)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         adicionais[desc] = value;
         adicionais_len++;
     });
@@ -154,11 +210,27 @@ function generatePdf(download) {
         var value = $('#value-sub-adicionais' + id).val();
         
         adicionais_sub_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in adicionais_sub) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in adicionais_sub)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+
         adicionais_sub[desc] = value;
         adicionais_sub_len++;
     });
-    
     var resultado = (lista_soma + fundo_soma + adicionais_soma) - (negativo_soma + adicionais_sub_soma);
+
+    /* Checksum */
+
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
