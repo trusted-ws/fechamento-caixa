@@ -2,6 +2,122 @@ var BASE64_MARKER = ';base64,';
 var qtdCampos = 0;
 var autor = '';
 
+function loadDataFromStorage(key, value) {
+    var dados = localStorage.getItem('_recolhe');
+    var dados_obj = null;
+
+    if (dados === null) {
+        alert('Não há dados salvos para carregar.');
+        return;
+    }
+
+    var lista_btn = $('#lista-add-field');
+    var fundo_btn = $('#fundo-add-field');
+    var negativo_btn = $('#negativo-add-field');
+    var adicionais_btn = $('#adicionais-add-field');
+    var adicionais_sub_btn = $('#adicionais_sub-add-field');
+
+    dados_obj = JSON.parse(dados);
+    console.log(dados_obj);
+
+    for (let [k, obj_v] of Object.entries(dados_obj)) {
+        var size = Object.keys(obj_v).length;
+        var expression = ""; 
+        var expression2 = "";
+        
+        if (size == 0) {
+            console.log('size=0;skipping. ' + k);
+            continue;
+        }
+        
+        switch (k) {
+            case "lista":
+                for(var _ = 0; _ < size; _++) {
+                    lista_btn.click();
+                    expression = 'input[id^=description-lista]';
+                    expression2 = '#value-lista';
+                }
+                break;
+            case "fundo":
+                for(var _ = 0; _ < size; _++) {
+                    fundo_btn.click();
+                    expression = 'input[id^=description-fundo]';
+                    expression2 = '#value-fundo';
+                }
+                break;
+            case "negativo":
+                for(var _ = 0; _ < size; _++) {
+                    negativo_btn.click();
+                    expression = 'input[id^=description-negativo]';
+                    expression2 = '#value-negativo';
+                }
+                break;
+            case "adicionais":
+                for(var _ = 0; _ < size; _++) {
+                    adicionais_btn.click();
+                    expression = 'input[id^=description-adicionais]';
+                    expression2 = '#value-adicionais';
+                }
+                break;
+            case "adicionais_sub":
+                for(var _ = 0; _ < size; _++) {
+                    adicionais_sub_btn.click();
+                    expression = 'input[id^=description-sub-adicionais]';
+                    expression2 = '#value-sub-adicionais';
+                }
+        }
+
+        var all_keys = Object.keys(obj_v);
+        
+        $(expression).each(function(index, element) {
+            $(this).val(all_keys[index]);
+            var _id = $(this).attr('id').replace(/[^0-9]/gi, ''); // Replace everything that is not a number with nothing
+            var id = parseInt(_id, 10); // Always hand in the correct base since 010 != 10 in js
+            $(expression2 + id).val(obj_v[all_keys[index]]);
+        });
+    }
+
+}
+
+function convertToJSON(array) {
+    var objArray = [];
+    for (var i = 1; i < array.length; i++) {
+      objArray[i - 1] = {};
+      for (var k = 0; k < array[0].length && k < array[i].length; k++) {
+        var key = array[0][k];
+        objArray[i - 1][key] = array[i][k]
+      }
+    }
+  
+    return objArray;
+}
+
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {   
+    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
 function convertDataURIToBinary(dataURI) {
     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
     var base64 = dataURI.substring(base64Index);
@@ -67,6 +183,20 @@ function generatePdf(download) {
         var value = $('#value-lista' + id).val();
         
         lista_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in lista) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in lista)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         lista[desc] = value;
         lista_len++;
     });
@@ -81,6 +211,20 @@ function generatePdf(download) {
         var value = $('#value-fundo' + id).val();
         
         fundo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+
+        if(desc in fundo) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in fundo)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+
         fundo[desc] = value;
         fundo_len++;
     });
@@ -95,6 +239,20 @@ function generatePdf(download) {
         var value = $('#value-negativo' + id).val();
         
         negativo_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in negativo) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in negativo)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         negativo[desc] = value;
         negativo_len++;
     });
@@ -109,6 +267,20 @@ function generatePdf(download) {
         var value = $('#value-adicionais' + id).val();
         
         adicionais_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in adicionais) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in adicionais)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+        
         adicionais[desc] = value;
         adicionais_len++;
     });
@@ -123,19 +295,85 @@ function generatePdf(download) {
         var value = $('#value-sub-adicionais' + id).val();
         
         adicionais_sub_soma += parseFloat(value.replaceAll('.','').replace(',','.'));
+        
+        if(desc in adicionais_sub) {
+            let nc = 2;
+            while(1) {
+                var tmp = desc + ' #' + nc;
+                if((tmp in adicionais_sub)) {
+                    nc++;
+                } else {
+                    desc = tmp;
+                    break;
+                }
+            }
+        }
+
         adicionais_sub[desc] = value;
         adicionais_sub_len++;
     });
-    
     var resultado = (lista_soma + fundo_soma + adicionais_soma) - (negativo_soma + adicionais_sub_soma);
 
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-    var days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-    var weekday = days[today.getDay()];
-    today = dd + '/' + mm + '/' + yyyy + " " + String(today.getHours()).padStart(2, '0') + ":" + String(today.getMinutes()).padStart(2, '0') + ":" + String(today.getSeconds()).padStart(2, '0');
+    /* Saving data to Session */
+    if(download == 3) {
+        var data = {};
+        var json_data = '';
+
+        data.adicionais_sub = {};  // adicionais sub
+        data.adicionais = {}; // adicionais soma
+        data.negativo = {};
+        data.fundo = {};
+        data.lista = {};
+
+        for (const [key, value] of Object.entries(lista)) {
+            data.lista[key] = value;
+        }
+
+        for (const [key, value] of Object.entries(fundo)) {
+            data.fundo[key] = value;
+        }
+
+        for (const [key, value] of Object.entries(negativo)) {
+            data.negativo[key] = value;
+        }
+
+        for (const [key, value] of Object.entries(adicionais)) {
+            data.adicionais[key] = value;
+        }
+
+        for (const [key, value] of Object.entries(adicionais_sub)) {
+            data.adicionais_sub[key] = value;
+        }
+
+        json_data = JSON.stringify(data);
+
+        
+        $.confirm({
+            title: 'Salvar informações?',
+            content: 'As informações salvas anteriormente serão sobrescritas.<br><br><b>Deseja continuar?</b>',
+            type: 'warning',
+            icon: 'fa fa-warning',
+            type: 'orange',
+            typeAnimated: true,
+            buttons: {
+                proceed: {
+                    text: 'Salvar',
+                    btnClass: 'btn-warning',
+                    action: function(){
+                        localStorage.setItem('_recolhe', json_data);
+                        $('#carregar').prop('disabled', true);
+                        toastr.success('Todos os dados foram salvos no seu dispositivo.', 'Informações Salvas');
+                    }
+                },
+                close: {
+                    text: 'Cancelar'
+                }
+            }
+        });
+
+
+        return;
+    }
 
     /* Labels */
     var lista_de_valores = $('#l-lista-valores').text();
@@ -143,6 +381,15 @@ function generatePdf(download) {
     var negativos = $('#l-negativos').text();
     var adicionais_sum = $('#l-adicionais-sum').text();
     var adicionais_subtr = $('#l-adicionais-sub').text();
+
+    /* Datetime info */
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    var days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    var weekday = days[today.getDay()];
+    today = dd + '/' + mm + '/' + yyyy + " " + String(today.getHours()).padStart(2, '0') + ":" + String(today.getMinutes()).padStart(2, '0') + ":" + String(today.getSeconds()).padStart(2, '0');
 
     /* Creating Document */
     var doc = new jsPDF();
@@ -452,6 +699,8 @@ $(function() {
         }
     };
 
+    // $('#exportar').prop('disabled', true);
+
     $('#l-recolhe').on('press', function(e) {
         var placeholder = 'Nome';
         if(autor.length > 0) { placeholder = autor; }
@@ -726,6 +975,14 @@ $(function() {
 
     $('#enviar').on('click', function() {
         generatePdf(2);
+    });
+
+    $('#salvar').on('click', function() {
+        generatePdf(3);
+    });
+
+    $('#carregar').on('click', function() {
+        loadDataFromStorage();
     });
 
     $('#visualizar').on('click', function() {
